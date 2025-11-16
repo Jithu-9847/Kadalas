@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About – Kadalas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loading-screen">
+    <div class="loader-box">
+        <div class="loading-label">Loading...</div>
+        <div class="pixel-bar">
+            <div class="pixel-fill"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Navbar -->
+<div class="retro-navbar">
+    <div class="nav-left">
+        <img src="logo.svg" class="nav-logo" alt="Kadalas Logo">
+        <div class="nav-title">Kadalas</div>
+    </div>
+
+    <div class="nav-right">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="upload.html">Upload</a>
+    </div>
+</div>
+
+<div class="container">
+
+    <h1 style="font-family:'Schoolbell', cursive; font-size:32px; text-align:center;">
+        About Kadalas
+    </h1>
+
+    <div class="torn-divider"></div>
+
+    <!-- About Section -->
+    <div class="retro-box">
+        <h2 style="font-family:'Schoolbell';">What is Kadalas?</h2>
+        <p>
+            <strong>Kadalas</strong> is a platform created for students to easily
+            share and access study notes.  
+            Whether it’s class notes, exam preparation materials, or quick summaries,
+            Kadalas helps students learn smarter and faster.
+        </p>
+
+        <div class="torn-divider"></div>
+
+        <h2 style="font-family:'Schoolbell';">Why Use Kadalas?</h2>
+        <ul class="retro-list">
+            <li>Share notes with friends instantly</li>
+            <li>Find subject-wise study materials</li>
+            <li>Upload handwritten or digital notes</li>
+            <li>Simple and clean interface</li>
+        </ul>
+    </div>
+
+    <div class="torn-divider"></div>
+
+    <!-- Creator Section -->
+    <div class="retro-box" style="text-align:center;">
+        <h2 style="font-family:'Schoolbell';">👨‍💻 Creator</h2>
+        <p style="font-size:18px;">
+            Created by <strong style="font-family:'Schoolbell'; font-size:22px;">CodeWizard368@gmail.com</strong>
+        </p>
+    </div>
+
+    <div class="torn-divider"></div>
+
+    <!-- Support Section -->
+    <div class="retro-box coffee-box">
+        <h2 style="font-family:'Schoolbell';">☕ Support</h2>
+        <p>If you like Kadalas, you can support the project.</p>
+        <a href="upi://pay?pa=jithugirish1@oksbi&pn=YourName&am=50&cu=INR" class="coffee-btn">Buy me a Coffee</a>
+    </div>
+
+    <div class="torn-divider"></div>
+
+    <!-- Feedback Section -->
+    <div class="retro-box">
+        <h2 style="font-family:'Schoolbell';">Send Your Feedback</h2>
+        <p style="font-size:17px; margin-bottom:10px;">
+            (Write your thoughts here)
+        </p>
+
+        <textarea 
+            style="
+                width:100%;
+                height:120px;
+                padding:12px;
+                font-family:'Schoolbell', cursive;
+                font-size:18px;
+                border:2px dashed #444;
+                background:#fffce8;
+                outline:none;
+                resize:vertical;
+                border-radius:6px;
+            "
+            placeholder="Your feedback helps Kadalas improve..."></textarea>
+
+        <button 
+            style="
+                margin-top:12px;
+                padding:10px 20px;
+                font-family:'Schoolbell';
+                font-size:18px;
+                background:#222;
+                color:#fff;
+                border:none;
+                border-radius:6px;
+                cursor:pointer;
+            ">
+            Submit Feedback
+        </button>
+    </div>
+
+</div>
+
+<div class="footer">
+    © 2025 Kadalas — Sharing Study Notes | Created by CodeWizard<br>
+    <b><i>Made for students, by a student</i></b>
+</div>
+
+<script>
+    // Fade-out effect for loading screen
+    window.addEventListener("load", () => {
+        setTimeout(() => {
+            document.getElementById("loading-screen").style.opacity = "0";
+            setTimeout(() => {
+                document.getElementById("loading-screen").style.display = "none";
+            }, 500);
+        }, 800);
+    });
+</script>
+
+</body>
+</html>

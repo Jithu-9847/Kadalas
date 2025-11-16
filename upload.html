@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Retro File Upload</title>
+
+    <style>
+        /* =============================== YOUR RETRO CSS (UNCHANGED) =============================== */
+
+        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Schoolbell&display=swap');
+
+        body {
+            margin: 0;
+            background: #f2e7c9;
+            font-family: 'Special Elite', monospace;
+            color: #4a3b28;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .upload-box {
+            background: #fffdf5;
+            padding: 25px;
+            border: 2px solid #d1c1a1;
+            border-radius: 12px;
+            box-shadow: 5px 5px 0 #b59d76;
+            margin-top: 25px;
+        }
+
+        .retro-input {
+            padding: 10px;
+            width: 100%;
+            font-family: 'Special Elite', monospace;
+            background: #fffdf5;
+            border: 2px solid #c2ae8a;
+            border-radius: 8px;
+            box-shadow: 3px 3px 0 #b59d76;
+            margin-top: 8px;
+            margin-bottom: 14px;
+        }
+
+        label {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        #dropzone {
+            border: 3px dashed #4a3b28;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            font-family: 'Schoolbell', cursive;
+            font-size: 22px;
+            background: #fffdf5;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #4a3b28;
+            margin-top: 15px;
+        }
+
+        #dropzone.drag {
+            background: #f2d9a6;
+            border-color: #b59d76;
+        }
+
+        .file-progress {
+            margin-top: 15px;
+            padding: 10px;
+            background: #fffdf5;
+            border: 2px solid #d1c1a1;
+            border-radius: 10px;
+            box-shadow: 2px 2px 0 #b59d76;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background: #f2d9a6;
+            border-radius: 5px;
+            border: 2px solid #c2ae8a;
+            overflow: hidden;
+            box-shadow: inset 2px 2px 0 #b59d76;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #4a3b28;
+            width: 0%;
+        }
+
+        button {
+            padding: 10px 16px;
+            background: #f2d9a6;
+            border: 2px solid #c2ae8a;
+            color: #4a3b28;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            font-family: 'Special Elite', monospace;
+            box-shadow: 3px 3px 0 #b59d76;
+        }
+
+        /* ===================================================
+           RETRO TOAST (Success Notification)
+        =================================================== */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fffdf5;
+            padding: 15px 20px;
+            border: 2px solid #d1c1a1;
+            border-radius: 10px;
+            box-shadow: 4px 4px 0 #b59d76;
+            font-size: 18px;
+            opacity: 0;
+            transition: opacity 0.4s ease-out, bottom 0.4s ease-out;
+            z-index: 999999;
+        }
+
+        #toast.show {
+            opacity: 1;
+            bottom: 50px;
+        }
+    </style>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+</head>
+
+<body>
+<div class="navbar">
+<div class="retro-navbar">
+    <div class="nav-left" style="cursor: pointer;" onclick="window.location.replace('index.html')">
+        <img src="logo.svg" class="nav-logo" alt="Logo" >
+        <span class="nav-title">Kadalas</span>
+    </div>
+
+
+    <div class="nav-right">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="upload.html">Upload</a>
+    </div>
+</div>
+
+</div>
+    <!-- Toast Notification -->
+    <div id="toast">Uploaded Successfully!</div>
+
+    <div class="container">
+        <h1 style="text-align:center;">Notes Upload</h1>
+
+        <div class="upload-box">
+
+            <!-- Select Subject -->
+            <label>Select Subject</label>
+            <select id="subjectSelect" class="retro-input">
+                <option value="Artificial Intelligence">Artificial Intelligence</option>
+                <option value="Web Programming">Web Programming</option>
+                <option value="Renewable Energy Systems">Renewable Energy Systems</option>
+                <option value="Industrial Safety Engineering">Industrial Safety Engineering</option>
+                <option value="Machine Learning">Machine Learning</option>
+                <option value="Energy Systems">Energy Systems</option>
+                <option value="others">Others</option>
+            </select>
+
+            <!-- Select Type -->
+            <label>Select Type of Notes</label>
+            <select id="noteType" class="retro-input" onchange="typeChanged()">
+                <option value="note">Note</option>
+                <option value="notion">Notion</option>
+                <option value="quick">Quick Notes</option>
+                <option value="other">Others</option>
+            </select>
+
+            <!-- Notion Inputs -->
+            <div id="notionInputBox" style="display:none;">
+
+                <label>Notion Title</label>
+                <input type="text" id="notionTitle" class="retro-input" placeholder="Enter Notion title">
+
+                <label>Notion Page URL</label>
+                <input type="url" id="notionURL" class="retro-input" placeholder="https://www.notion.so/...">
+
+                <button onclick="saveNotionURL()">Save Notion Link</button>
+            </div>
+
+            <!-- File Dropzone -->
+            <div id="dropzone">Drag & Drop Files Here<br>or Click to Select</div>
+            <input type="file" id="fileInput" multiple style="display:none;">
+
+            <div id="uploadStatus"></div>
+
+        </div>
+    </div>
+<div class="footer">
+    © 2025 Kadalas — Sharing Study Notes | Created by CodeWizard<br>
+    <b><i>Made for students, by a student</i></b>
+</div>
+
+    <script>
+    /* --------------------- Supabase --------------------- */
+    const SUPABASE_URL = "https://lrcdxhgzbklljpdakeyx.supabase.co";
+    const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyY2R4aGd6YmtsbGpwZGFrZXl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyODQzMzAsImV4cCI6MjA3ODg2MDMzMH0.15Lt-Ct2st0aaiF51d97QmwyiBMQAiDrNzpUrufDRFw";
+
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const dropzone = document.getElementById("dropzone");
+    const fileInput = document.getElementById("fileInput");
+    const uploadStatus = document.getElementById("uploadStatus");
+    const noteType = document.getElementById("noteType");
+    const subjectSelect = document.getElementById("subjectSelect");
+    const notionBox = document.getElementById("notionInputBox");
+
+    /* ------------------- Toast Function ------------------- */
+    function showToast(msg) {
+        let toast = document.getElementById("toast");
+        toast.textContent = msg;
+        toast.classList.add("show");
+
+        setTimeout(() => {
+            toast.classList.remove("show");
+            location.reload();  // refresh page
+        }, 2500);
+    }
+
+    /* ------------------- Type Switch ------------------- */
+    function typeChanged() {
+        if (noteType.value === "notion") {
+            notionBox.style.display = "block";
+            dropzone.style.display = "none";
+        } else {
+            notionBox.style.display = "none";
+            dropzone.style.display = "block";
+        }
+    }
+
+    /* ------------------- Save Notion ------------------- */
+    async function saveNotionURL() {
+        const title = document.getElementById("notionTitle").value.trim();
+        const url = document.getElementById("notionURL").value.trim();
+        const subject = subjectSelect.value;
+
+        if (!title || !url) {
+            alert("Please fill both Notion Title & URL!");
+            return;
+        }
+
+        await client.from("notes").insert({
+            subject,
+            type: "notion",
+            file_name: title,
+            file_url: url
+        });
+
+        showToast("Notion note saved!");
+    }
+
+    /* ------------------- Drag & Drop ------------------- */
+    dropzone.onclick = () => fileInput.click();
+    fileInput.onchange = e => handleFiles(e.target.files);
+
+    dropzone.ondragover = e => {
+        e.preventDefault();
+        dropzone.classList.add("drag");
+    };
+    dropzone.ondragleave = () => dropzone.classList.remove("drag");
+
+    dropzone.ondrop = e => {
+        e.preventDefault();
+        dropzone.classList.remove("drag");
+        handleFiles(e.dataTransfer.files);
+    };
+
+    /* ---------------------------------------------------
+       MULTIPLE FILE UPLOAD (ONE TOAST AFTER ALL DONE)
+    --------------------------------------------------- */
+    async function handleFiles(files) {
+        const fileArray = [...files];
+
+        // Upload all files → wait until all finish
+        const tasks = fileArray.map(file => uploadSingleFile(file));
+
+        await Promise.all(tasks);
+
+        // When ALL uploads complete:
+        showToast("All files uploaded!");
+    }
+
+    /* ---------------------------------------------------
+       UPLOAD A SINGLE FILE (returns a Promise)
+    --------------------------------------------------- */
+    function uploadSingleFile(file) {
+        return new Promise(async (resolve) => {
+
+            const subject = subjectSelect.value;
+            const id = `p_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+
+            const block = document.createElement("div");
+            block.className = "file-progress";
+            block.innerHTML = `
+                <b>${file.name}</b>
+                <div class="progress-container">
+                    <div class="progress-bar" id="${id}"></div>
+                </div>
+            `;
+            uploadStatus.appendChild(block);
+
+            const bar = document.getElementById(id);
+            const filePath = `${Date.now()}_${file.name}`;
+
+            const { error } = await client.storage
+                .from("uploads")
+                .upload(filePath, file, { upsert: true });
+
+            bar.style.width = "100%";
+
+            if (error) {
+                bar.style.background = "red";
+                return resolve();
+            }
+
+            const { data: urlData } = client.storage
+                .from("uploads")
+                .getPublicUrl(filePath);
+
+            await client.from("notes").insert({
+                subject,
+                type: noteType.value,
+                file_name: file.name,
+                file_url: urlData.publicUrl
+            });
+
+            resolve();
+        });
+    }
+</script>
+
+
+</body>
+
+</html>

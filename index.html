@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Retro Notes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="loading-screen">
+    <div class="loader-box">
+        <div class="loading-label">Loading...</div>
+
+        <div class="pixel-bar">
+            <div class="pixel-fill"></div>
+        </div>
+    </div>
+</div>
+
+
+<!-- NAVBAR -->
+<div class="navbar">
+<div class="retro-navbar">
+    <div class="nav-left" style="cursor: pointer;" onclick="window.location.replace('index.html')">
+        <img src="logo.svg" class="nav-logo" alt="Logo"  >
+        <span class="nav-title">Kadalas</span>
+    </div>
+
+
+    <div class="nav-right">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="upload.html">Upload</a>
+    </div>
+</div>
+
+</div>
+
+</div>
+
+<div class="container">
+    <h2>Subjects</h2>
+    <div id="subjects"></div>
+    <div class="torn-divider"></div>
+
+    <div class="section retro-box">
+    <h3>Welcome to Kadalas</h3>
+    <p>
+        A warm, nostalgic place to store and share your notes — just like flipping through an old study notebook.
+        Everything here is handwritten-style, cozy, and distraction-free.
+    </p>
+</div>
+<div class="section retro-box">
+    <h3>Why You'll Love This Website</h3>
+
+    <ul class="retro-list">
+        <li>100% free study notes</li>
+        <li>Retro notebook design for cozy studying</li>
+        <li>Download notes instantly</li>
+        <li>Notion notes with one-click share</li>
+    </ul>
+</div>
+<div class="section retro-box coffee-box">
+    <h3>Like This Website? ☕</h3>
+    <p>Support the creator by buying a cup of coffee!</p>
+
+    <a href="upi://pay?pa=jithugirish1@oksbi&pn=YourName&am=50&cu=INR" target="_blank" class="coffee-btn">
+        ☕ Buy Me a Coffee
+    </a>
+</div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    © 2025 Kadalas — Sharing Study Notes | Created by CodeWizard<br>
+    <b><i>Made for students, by a student</i></b>
+</div>
+
+<script src="data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+
+    const SUPABASE_URL = "https://lrcdxhgzbklljpdakeyx.supabase.co";
+    const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyY2R4aGd6YmtsbGpwZGFrZXl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyODQzMzAsImV4cCI6MjA3ODg2MDMzMH0.15Lt-Ct2st0aaiF51d97QmwyiBMQAiDrNzpUrufDRFw";
+
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const subjectBox = document.getElementById("subjects");
+
+    /* ---------------------------------------------
+       FETCH UNIQUE SUBJECTS FROM SUPABASE
+    --------------------------------------------- */
+    async function loadSubjects() {
+        const { data, error } = await client
+            .from("notes")
+            .select("subject");
+
+        if (error) {
+            console.error("Error fetching subjects:", error);
+            subjectBox.innerHTML = "<p>Error loading subjects.</p>";
+            return;
+        }
+
+        if (!data.length) {
+            subjectBox.innerHTML = "<p>No subjects available.</p>";
+            return;
+        }
+
+        // Extract unique subject names
+        const uniqueSubjects = [...new Set(data.map(item => item.subject))];
+
+        uniqueSubjects.forEach(sub => {
+            let div = document.createElement("div");
+            div.className = "subject-item";
+            div.textContent = sub;
+            div.onclick = () =>
+                window.location.href = `subject.html?subject=${encodeURIComponent(sub)}`;
+
+            subjectBox.appendChild(div);
+        });
+    }
+
+    loadSubjects();
+
+
+    /* ---------------------------------------------
+        Loader Animation Timeout
+    --------------------------------------------- */
+    window.onload = () => {
+        setTimeout(() => {
+            const loader = document.getElementById("loading-screen");
+            loader.style.opacity = "0";
+            setTimeout(() => loader.style.display = "none", 300);
+        }, 1100);
+    };
+
+    /* ---------------------------------------------
+       CLICK TO SHOW LOADER ON NAVIGATION
+    --------------------------------------------- */
+    function showPixelLoader() {
+        document.body.insertAdjacentHTML("beforeend", `
+            <div id="loading-screen">
+                <div class="loader-box">
+                    <div class="loading-label">Loading...</div>
+                    <div class="pixel-bar">
+                        <div class="pixel-fill"></div>
+                    </div>
+                </div>
+            </div>
+        `);
+    }
+
+    document.addEventListener("click", (e) => {
+        const el = e.target.closest("a, .subject-item, button");
+        if (el) showPixelLoader();
+    });
+</script>
+
+
+</body>
+</html>

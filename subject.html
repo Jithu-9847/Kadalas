@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Subject Notes</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="loading-screen">
+      <div class="loader-box">
+        <div class="loading-label">Loading...</div>
+        <div class="pixel-bar"><div class="pixel-fill"></div></div>
+      </div>
+    </div>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+<div class="retro-navbar">
+    <div class="nav-left" style="cursor: pointer;" onclick="window.location.replace('index.html')">
+        <img src="logo.svg" class="nav-logo" alt="Logo" >
+        <span class="nav-title">Kadalas</span>
+    </div>
+
+
+    <div class="nav-right">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="upload.html">Upload</a>
+    </div>
+</div>
+
+</div>
+
+    <div class="container">
+      <button onclick="history.back()">← Back</button>
+
+      <h2 id="title"></h2>
+
+      <!-- TABS -->
+      <div class="tabs">
+        <button class="tab active" onclick="openTab('regularTab')">
+          Regular
+        </button>
+        <button class="tab" onclick="openTab('notionTab')">Notion</button>
+        <button class="tab" onclick="openTab('quickTab')">Quick</button>
+        <button class="tab" onclick="openTab('othersTab')">Others</button>
+      </div>
+
+      <!-- TAB CONTENT -->
+      <div id="regularTab" class="tab-content"></div>
+      <div id="notionTab" class="tab-content" style="display: none"></div>
+      <div id="quickTab" class="tab-content" style="display: none"></div>
+      <div id="othersTab" class="tab-content" style="display: none"></div>
+    </div>
+
+<div class="footer">
+    © 2025 Kadalas — Sharing Study Notes | Created by CodeWizard<br>
+    <b><i>Made for students, by a student</i></b>
+</div>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+      /* --------------------------------------------------
+   SHOW LOADING SCREEN
+-------------------------------------------------- */
+      setTimeout(() => {
+        document.getElementById("loading-screen").style.display = "none";
+      }, 1300);
+
+      document.addEventListener("click", (e) => {
+        const el = e.target.closest("a, .subject-item, button");
+        if (el) showPixelLoader?.();
+      });
+
+      /* --------------------------------------------------
+   SUPABASE INITIALIZATION
+-------------------------------------------------- */
+      const SUPABASE_URL = "https://lrcdxhgzbklljpdakeyx.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyY2R4aGd6YmtsbGpwZGFrZXl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyODQzMzAsImV4cCI6MjA3ODg2MDMzMH0.15Lt-Ct2st0aaiF51d97QmwyiBMQAiDrNzpUrufDRFw";
+
+      const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      /* --------------------------------------------------
+   GET SUBJECT FROM URL
+-------------------------------------------------- */
+      const params = new URLSearchParams(window.location.search);
+      const subject = params.get("subject");
+      document.getElementById("title").textContent = subject;
+
+      /* --------------------------------------------------
+   LOAD NOTES FROM SUPABASE
+-------------------------------------------------- */
+
+      async function loadNotes() {
+        const { data, error } = await client
+          .from("notes")
+          .select("*")
+          .eq("subject", subject);
+
+        if (error) {
+          console.error(error);
+          return;
+        }
+
+        const regular = data.filter((n) => n.type === "note");
+        const notion = data.filter((n) => n.type === "notion");
+        const quick = data.filter((n) => n.type === "quick");
+        const other = data.filter((n) => n.type === "other");
+
+        loadDownloadNotes("regularTab", regular);
+        loadNotionNotes(notion);
+        loadDownloadNotes("quickTab", quick);
+        loadDownloadNotes("othersTab", other);
+      }
+
+      /* --------------------------------------------------
+   RENDER REGULAR / QUICK / OTHER NOTES
+-------------------------------------------------- */
+
+      function loadDownloadNotes(tabId, list) {
+        const box = document.getElementById(tabId);
+        box.innerHTML = "";
+
+        if (!list.length) {
+          box.innerHTML = "<p>No notes available.</p>";
+          return;
+        }
+
+        list.forEach((note) => {
+          let div = document.createElement("div");
+          div.className = "note-item";
+          div.innerHTML = `
+            <strong>${note.file_name}</strong><br>
+            <a href="${note.file_url}" download>Download</a>
+        `;
+          box.appendChild(div);
+        });
+      }
+
+      /* --------------------------------------------------
+   RENDER NOTION NOTES
+-------------------------------------------------- */
+
+      function loadNotionNotes(list) {
+        const box = document.getElementById("notionTab");
+        box.innerHTML = "";
+
+        if (!list.length) {
+          box.innerHTML = "<p>No Notion notes available.</p>";
+          return;
+        }
+
+        list.forEach((note) => {
+          let div = document.createElement("div");
+          div.className = "note-item";
+
+          div.innerHTML = `
+            <strong>${note.file_name}</strong><br>
+            <a href="${note.file_url}" target="_blank">Open</a>
+            <button class="share-btn" onclick="shareNote('${note.file_name}', '${note.file_url}')">
+                Share
+            </button>
+        `;
+
+          box.appendChild(div);
+        });
+      }
+
+      /* --------------------------------------------------
+   SHARE BUTTON
+-------------------------------------------------- */
+
+      function shareNote(title, url) {
+        if (navigator.share) {
+          navigator
+            .share({
+              title: title,
+              text: "Check out this Notion note:",
+              url: url,
+            })
+            .catch((err) => console.log(err));
+        } else {
+          navigator.clipboard.writeText(url);
+          alert("Link copied to clipboard!");
+        }
+      }
+
+      /* --------------------------------------------------
+   TAB SWITCHING
+-------------------------------------------------- */
+      function openTab(tabId) {
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((t) => (t.style.display = "none"));
+        document
+          .querySelectorAll(".tab")
+          .forEach((t) => t.classList.remove("active"));
+
+        document.getElementById(tabId).style.display = "block";
+        event.target.classList.add("active");
+      }
+
+      /* --------------------------------------------------
+   INIT
+-------------------------------------------------- */
+      loadNotes();
+    </script>
+  </body>
+</html>
