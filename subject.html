@@ -179,12 +179,13 @@
           navigator
             .share({
               title: title,
-              text: "Check out this Notion note:",
               url: url,
+              text: "Check out this Notion note. For more notes, visit www.kadalas.jithu.me"
+              
             })
             .catch((err) => console.log(err));
         } else {
-          navigator.clipboard.writeText(url);
+          navigator.clipboard.writeText(title+"\n"+url+"\nCheck out this Notion note. For more notes, visit www.kadalas.jithu.me\n");
           alert("Link copied to clipboard!");
         }
       }
